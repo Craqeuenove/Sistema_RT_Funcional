@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Sistema de Cadastro de Mídias — Agência</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family: "Inter", Arial, sans-serif;background:#f7f9fc;padding:40px 20px;}
+h1{text-align:center;font-size:38px;font-weight:800;color:#1a1a1a;margin-bottom:40px;letter-spacing:-1px;}
+.btn{padding:14px 20px;border:none;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;transition:0.25s;}
+.btn-yellow{background:#f4b230;color:#000;}
+.btn-dark{background:#1e1e1e;color:#fff;}
+.btn-red{background:#d9534f;color:#fff;}
+.btn:hover{transform:translateY(-2px);filter:brightness(0.95);}
+.container{width:100%;max-width:1300px;margin:auto;}
+.form-block{padding:30px;background:rgba(255,255,255,0.9);border-radius:16px;margin-top:25px;border:1px solid #e6eaf2;box-shadow:0 10px 30px rgba(0,0,0,0.06);backdrop-filter:blur(6px);transition:0.3s;}
+.form-block:hover{box-shadow:0 12px 40px rgba(0,0,0,0.08);}
+label{font-weight:600;font-size:14px;display:block;margin-bottom:6px;color:#1e1e1e;}
+input,select,textarea{width:100%;padding:14px;margin-bottom:20px;border-radius:10px;border:1px solid #ccd4e2;background:#edf2ff;font-size:15px;transition:0.2s;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#f4b230;box-shadow:0 0 0 2px rgba(244,178,48,0.3);}
+.row{display:flex;gap:20px;flex-wrap:wrap;}
+.col{flex:1;min-width:250px;}
+.action-buttons{display:flex;gap:12px;align-items:flex-end;justify-content:flex-end;min-width:280px;margin-bottom:20px;}
+.footer-buttons{margin-top:30px;display:flex;justify-content:flex-end;gap:20px;}
+</style>
+</head>
+
+<body>
+
+<h1>CONTROLE DE MEDIDAS</h1>
+
+<div class="container">
+    <button class="btn btn-yellow" onclick="novoCliente()">+ Novo Cliente</button>
+    <div id="clienteArea"></div>
+</div>
+
+<script>
+function novoCliente(){
+    document.getElementById("clienteArea").innerHTML = gerarFormulario();
+}
+
+function gerarFormulario(){
+    return `
+    <div id="formulario-principal">
+        <div id="espacos">
+            ${gerarBlocoEspaco(true)}
+        </div>
+
+        <div class="footer-buttons">
+            <button class="btn btn-yellow" onclick="exportarPDF()">Exportar PDF</button>
+            <button class="btn btn-dark">Salvar</button>
+        </div>
+    </div>
+    `;
+}
+
+function gerarBlocoEspaco(primeiro = false){
+    return `
+    <div class="form-block bloco-espaco">
+
+        <div class="row">
+            ${primeiro ? `
+            <div class="col">
+                <label>Cliente:</label>
+                <input type="text" placeholder="Nome da Empresa ou Pessoa Física" class="campo-cliente">
+            </div>
+
+            <div class="col">
+                <label>Responsável:</label>
+                <input type="text" placeholder="Pessoa que recebeu a equipe no local" class="campo-responsavel">
+            </div>
+            ` : ``}
+
+            <div class="action-buttons">
+                <button class="btn btn-dark" onclick="adicionarEspaco()">+ Adicionar Espaço</button>
+                <button class="btn btn-red" onclick="removerEspaco(this)">Excluir Espaço</button>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <label>Espaço:</label>
+                <input type="text" placeholder="Nome do Espaço" class="campo-espaco">
+            </div>
+
+            <div class="col">
+                <label>Tipo de Mídia:</label>
+                <select class="campo-tipo">
+                    <option>Escolha uma opção</option>
+                    <option>Outdoor</option>
+                    <option>Banner</option>
+                    <option>Mega Banner</option>
+                    <option>Painel</option>
+                    <option>Faixa</option>
+                    <option>Mesa de Shopping</option>
+                    <option>Backdroop</option>
+                    <option>Adesivo recorte</option>
+                    <option>Testeira</option>
+                    <option>Busdoor</option>
+                    <option>Jateado</option>
+                    <option>Totem</option>
+                    <option>Stand</option>
+                    <option>Placa</option>
+                    <option>Cavalete</option>
+                    <option>Envelopamento de Veículo</option>
+                    <option>Outro</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <label>Internos:</label>
+                <select class="campo-interno">
+                    <option>Escolha uma opção</option>
+                    <option>Parede Lateral</option>
+                    <option>Parede Teto</option>
+                    <option>Parede Central</option>
+                    <option>Janela</option>
+                    <option>Móvel</option>
+                </select>
+            </div>
+
+            <div class="col">
+                <label>Externos:</label>
+                <select class="campo-externo">
+                    <option>Escolha uma opção</option>
+                    <option>Fachada</option>
+                    <option>Porta</option>
+                    <option>Portão</option>
+                    <option>Parede Entrada</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <label>Medida Total:</label>
+                <input type="text" placeholder="Largura x Altura" class="campo-medida">
+            </div>
+        </div>
+
+        <label>Descrição / Observações:</label>
+        <textarea rows="4" placeholder="Informações adicionais" class="campo-desc"></textarea>
+
+        <label>Fotos:</label>
+        <input type="file">
+    </div>
+    `;
+}
+
+function adicionarEspaco(){
+    document.getElementById("espacos").insertAdjacentHTML("beforeend", gerarBlocoEspaco(false));
+}
+
+function removerEspaco(btn){
+    btn.closest(".bloco-espaco").remove();
+}
+
+function exportarPDF(){
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    let y = 10;
+    doc.setFontSize(14);
+    doc.text("Relatório de Medições", 10, y);
+    y += 10;
+
+    document.querySelectorAll(".bloco-espaco").forEach((bloco, index)=>{
+        doc.setFontSize(12);
+
+        const cliente = bloco.querySelector(".campo-cliente")?.value || "";
+        const responsavel = bloco.querySelector(".campo-responsavel")?.value || "";
+
+        const espaco = bloco.querySelector(".campo-espaco").value;
+        const tipo = bloco.querySelector(".campo-tipo").value;
+        const interno = bloco.querySelector(".campo-interno").value;
+        const externo = bloco.querySelector(".campo-externo").value;
+        const medida = bloco.querySelector(".campo-medida").value;
+        const desc = bloco.querySelector(".campo-desc").value;
+
+        doc.text(`Espaço ${index+1}`, 10, y); y+=7;
+        if(cliente){ doc.text(`Cliente: ${cliente}`, 10, y); y+=7; }
+        if(responsavel){ doc.text(`Responsável: ${responsavel}`, 10, y); y+=7; }
+
+        doc.text(`Local: ${espaco}`, 10, y); y+=7;
+        doc.text(`Tipo: ${tipo}`, 10, y); y+=7;
+        doc.text(`Interno: ${interno}`, 10, y); y+=7;
+        doc.text(`Externo: ${externo}`, 10, y); y+=7;
+        doc.text(`Medida: ${medida}`, 10, y); y+=7;
+
+        doc.text(`Descrição: ${desc}`, 10, y); y+=15;
+        y += 5;
+    });
+
+    doc.save("relatorio-medidas.pdf");
+}
+</script>
+
+</body>
+</html>
